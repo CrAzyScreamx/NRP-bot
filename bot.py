@@ -17,12 +17,7 @@ async def re(ctx):
     if ctx.author.id == 231405897820143616:
         for filename in os.listdir('./cogs'):
             if filename.endswith('.py'):
-                client.unload_extension(f'cogs.{filename[:-3]}')
-
-        for filename in os.listdir('./cogs'):
-            if filename.endswith('.py'):
-                client.load_extension(f'cogs.{filename[:-3]}')
-
+                client.reload_extension(f'cogs.{filename[:-3]}')
         msg = ctx.message
         await msg.delete()
         await ctx.author.send("Extensions loaded")
