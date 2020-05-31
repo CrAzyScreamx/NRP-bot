@@ -77,7 +77,6 @@ async def Notif(self, ctx, mention, type, channel_id, connection):
         await msg.add_reaction('✅')
         re = await self.client.wait_for('reaction_add', check = lambda r, u: r.emoji in ['❌', '✅'] and r.message.id == msg.id and u == ctx.author)
         if str(re[0]) == str('✅'):
-            await ctx.author.send("Consider it done!")
             await ctx.message.delete()
             await msg.delete()
             if type == 'p': pending = sheet.get("D2:E")
