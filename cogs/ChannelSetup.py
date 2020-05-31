@@ -11,6 +11,7 @@ class ChannelSetup(commands.Cog):
         self.client = client
 
     @commands.command(aliases=['setfch'])
+    @commands.has_permissions(administrator=True)
     async def setChannel(self, ctx):
         emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
         connection = connect()

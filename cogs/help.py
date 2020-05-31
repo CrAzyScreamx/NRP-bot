@@ -18,6 +18,7 @@ class help(commands.Cog):
         await ctx.author.send(embed=embed)
 
     @help.command(case_insensitive=True, aliases=['a'])
+    @commands.has_permissions(administrator=True)
     async def Admin(self, ctx):
         await ctx.message.delete()
         embed = discord.Embed(
