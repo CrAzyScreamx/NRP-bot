@@ -36,6 +36,7 @@ class ChannelSetup(commands.Cog):
                 ss.update("N2", str(ctx.channel.id))
                 break
     @commands.command(aliases=['setgch'])
+    @commands.has_permissions(administrator=True)
     async def SetGeneral(self, ctx):
         await ctx.message.delete()
         with open('ImportentFiles/GeneralFile.txt', 'w') as f:
@@ -43,6 +44,40 @@ class ChannelSetup(commands.Cog):
             f.close()
         await ctx.author.send("Channel has been set for app purposes")
 
+    @commands.command(aliases=['sets'])
+    @commands.has_permissions(administrator=True)
+    async def SetState(self, ctx, state=None):
+        if state == None or state != 'open' != state != 'close':
+            await ctx.message.delete()
+            await ctx.author.send("You must provide the state ``open`` or ``close``")
+        else:
+            emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
+            connection = connect()
+            facsheet = connection.worksheet("Factions")
+            faclist = facsheet.get("A4:A")
+            sentence = listmaker(faclist)
+            embed = discord.Embed(
+                description = 'Choose one of the listed factions to set the state to',
+                colour = discord.Colour.blue()
+            )
+            embed.add_field(name = ' ‏‏‎ ', value="__**LIST**__\n{0}".format(sentence))
+            msg = await ctx.send(embed=embed)
+            for i in range(len(faclist)):
+                await msg.add_reaction(emojis[i])
+            re = await self.client.wait_for('reaction_add', check = lambda r, u: r.emoji in emojis and r.message.id == msg.id and u == ctx.author)
+            for i in range(0, len(faclist)):
+                if str(emojis[i]) == str(re[0]):
+                    await ctx.author.send("Faction's state has been set to ``{0}``".format(state))
+                    await msg.delete()
+                    await ctx.message.delete()
+                    ss = connection.worksheet(faclist[i][0])
+                    ss.update("O2", str(state))
+                    with open('ImportentFiles/GeneralFile.txt', 'r') as f:
+                        ids = f.readlines()
+                        channel = self.client.get_channel(int(ids[0].strip()))
+                    break
+            if state == 'open': await channel.send("Applications for {0} are now OPEN!".format(faclist[i][0]))
+            else: await channel.send("Applications for {0} are now CLOSED!".format(faclist[i][0]))
 
 def setup(client):
     client.add_cog(ChannelSetup(client))

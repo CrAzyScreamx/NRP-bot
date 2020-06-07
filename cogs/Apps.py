@@ -40,19 +40,21 @@ class Apps(commands.Cog):
             for i in range(0, len(list)):
                 if str(emojis[i]) == str(re[0]):
                     ss = connection.worksheet(list[i][0])
-                    try:
-                        ids = ss.get("L2:L")
-                        for g in ids:
-                            if str(g[0]) == str(ctx.author.id):
-                                check = True
-                                await ctx.author.send("You have already applied for this position, wait!")
-                                break
-                            else: check = False
-                        if check == False:
+                    if State(ss) == True:
+                        try:
+                            ids = ss.get("L2:L")
+                            for g in ids:
+                                if str(g[0]) == str(ctx.author.id):
+                                    check = True
+                                    await ctx.author.send("You have already applied for this position, wait!")
+                                    break
+                                else: check = False
+                            if check == False:
+                                await LaunchApp(self, ctx, ss, list[i][0])
+                        except Exception:
                             await LaunchApp(self, ctx, ss, list[i][0])
-                    except Exception:
-                        await LaunchApp(self, ctx, ss, list[i][0])
-                        break
+                            break
+                    else: await ctx.author.send("Applications for this position are CLOSED at the moment.")
         else: await ctx.message.delete()
 
     @commands.command()
@@ -76,6 +78,11 @@ def connect():
         id = ids[0].strip()
     sheet = gc.open_by_key(id)
     return sheet
+
+def State(worksheet):
+    state = worksheet.acell("O2").value
+    if state == 'open': return True
+    else: return False
 
 def listmaker(data):
     sentence = ""
