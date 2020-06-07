@@ -71,8 +71,10 @@ def connect():
     creds = ServiceAccountCredentials.from_json_keyfile_name("ImportentFiles/DriveAPIcreds.json", scope)
 
     gc = gspread.authorize(creds)
-
-    sheet = gc.open_by_key('1p_v4ofnd5_oBbRIM6i47skC5rhPdWd_BsWrKUM7QHKM')
+    with open('ImportentFiles/SheetID.txt', 'r') as f:
+        ids = f.readlines()
+        id = ids[0].strip()
+    sheet = gc.open_by_key(id)
     return sheet
 
 def listmaker(data):
