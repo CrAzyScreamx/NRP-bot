@@ -10,6 +10,26 @@ class ChannelSetup(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    async def is_permed(ctx):
+        checker = False
+        connection = connect()
+        ws = connection.worksheet("Command Roles")
+        roles_id = ws.get('F5:F')
+        roles_id2 = ws.get("C5:C")
+        roles = []
+        for i in range(0, len(roles_id)):
+            roles.append(str(roles_id[i][0]))
+        for i in range(0, len(roles_id2)):
+            roles.append(str(roles_id2[i][0]))
+        aroles = ctx.author.roles
+        role_names = []
+        for i in range(0, len(aroles)):
+            role_names.append(aroles[i].name)
+        for i in range(0, len(roles)):
+            if roles[i] in role_names:
+                checker = True
+        return checker
+
     @commands.command(aliases=['setfch'])
     @commands.has_permissions(administrator=True)
     async def setChannel(self, ctx):
@@ -35,6 +55,7 @@ class ChannelSetup(commands.Cog):
                 ss = connection.worksheet(faclist[i][0])
                 ss.update("N2", str(ctx.channel.id))
                 break
+
     @commands.command(aliases=['setgch'])
     @commands.has_permissions(administrator=True)
     async def SetGeneral(self, ctx):
@@ -45,7 +66,7 @@ class ChannelSetup(commands.Cog):
         await ctx.author.send("Channel has been set for app purposes")
 
     @commands.command(aliases=['sets'])
-    @commands.has_permissions(administrator=True)
+    @commands.check(is_permed)
     async def SetState(self, ctx, state=None):
         if state == None or state != 'open' != state != 'close':
             await ctx.message.delete()
@@ -78,6 +99,20 @@ class ChannelSetup(commands.Cog):
                     break
             if state == 'open': await channel.send("Applications for {0} are now OPEN!".format(faclist[i][0]))
             else: await channel.send("Applications for {0} are now CLOSED!".format(faclist[i][0]))
+
+
+    #Update Roles on Website:
+    @commands.command(aliases=['ur'])
+    @commands.has_permissions(administrator=True)
+    async def UpdateRoles(self, ctx):
+        await ctx.message.delete()
+        connection = connect()
+        ws = connection.worksheet("Role List")
+        roles = ctx.guild.roles
+        for i in range(1, len(roles)):
+            ws.update(f"A{i}", roles[i].name)
+            ws.update(f"B{i}", str(roles[i].id))
+
 
 def setup(client):
     client.add_cog(ChannelSetup(client))
